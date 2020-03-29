@@ -1,14 +1,26 @@
 package com.stranger.easyfindboot.controller;
 
+import com.stranger.easyfindboot.entity.SysUser;
+import com.stranger.easyfindboot.service.ISysUserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/test")
 public class TestController {
+    private Logger log= LoggerFactory.getLogger(TestController.class);
 
-    @RequestMapping("/testmethod")
-    public String test(){
-        return "hello4,1testmethod";
+    @Autowired
+    ISysUserService sysUserService;
+
+    @RequestMapping("/sayhello")
+    public String sayHello(){
+        log.info("hello world");
+        UserDetails sysUser=sysUserService.loadUserByUsername("test");
+        return "hello world!"+sysUser.getUsername();
     }
 }
