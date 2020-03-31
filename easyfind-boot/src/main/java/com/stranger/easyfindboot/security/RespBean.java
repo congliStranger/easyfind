@@ -14,6 +14,30 @@ public class RespBean {
         this.object=object;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
+    }
+
     public static RespBean build(){
         return new RespBean();
     }
@@ -21,4 +45,5 @@ public class RespBean {
     public static RespBean err(String msg){
         return new RespBean(500,msg);
     }
+    public static RespBean ok(String msg){return new RespBean(200,msg);}
 }

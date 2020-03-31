@@ -26,7 +26,7 @@ public class SysUserService implements ISysUserService {
         return list != null &&list.size()>0 ? list.get(0):null;
     }
 
-    /**
+    /**\
      *
      * @param username
      * @return

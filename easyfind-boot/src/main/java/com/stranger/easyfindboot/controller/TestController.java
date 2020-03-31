@@ -10,17 +10,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
 public class TestController {
     private Logger log= LoggerFactory.getLogger(TestController.class);
 
     @Autowired
     ISysUserService sysUserService;
 
-    @RequestMapping("/sayhello")
+    @RequestMapping("/test/sayhello")
     public String sayHello(){
         log.info("hello world");
         UserDetails sysUser=sysUserService.loadUserByUsername("test");
         return "hello world!"+sysUser.getUsername();
     }
+
+    @RequestMapping("/login")
+    public String login(){
+        log.info("hello world");
+        UserDetails sysUser=sysUserService.loadUserByUsername("test");
+        return "hello world!"+sysUser.getUsername();
+    }
+
 }
