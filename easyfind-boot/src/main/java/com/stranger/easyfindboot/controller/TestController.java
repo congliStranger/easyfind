@@ -23,7 +23,7 @@ public class TestController {
         return "hello world!"+sysUser.getUsername();
     }
 
-    @RequestMapping("/login")
+//    @RequestMapping("/login")
     public String login(){
         log.info("hello world");
         UserDetails sysUser=sysUserService.loadUserByUsername("test");

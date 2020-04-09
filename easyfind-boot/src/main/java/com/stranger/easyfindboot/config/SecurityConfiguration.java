@@ -22,6 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -35,7 +36,7 @@ import java.io.PrintWriter;
 
 
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -55,9 +56,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      * @return
      */
     @Bean
-    public static NoOpPasswordEncoder passwordEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    public static PasswordEncoder passwordEncoder() {
+        return  NoOpPasswordEncoder.getInstance();
     }
+
     /**
      *配置用户登录的信息（用户名和密码是否正确等）
      * 在Spring Security Config中,AuthenticationManagerBuilder是一个SecurityBuilder,
@@ -67,11 +69,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        super.configure(auth);
         auth.userDetailsService(sysUserService);
-//        auth.userDetailsService(sysUserService).passwordEncoder(NoOpPasswordEncoder.getInstance());
-//        auth.inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder()).withUser("user1").
-//                password(new BCryptPasswordEncoder().encode("123456")).roles("USER");
     }
 
     /**
@@ -81,7 +79,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     public void configure(WebSecurity web) throws Exception {
-        super.configure(web);
         web.ignoring().antMatchers("/index.html","/static/**","/login_p");
     }
 
@@ -92,7 +89,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
         http.authorizeRequests().withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
 
             @Override
@@ -101,9 +97,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 o.setAccessDecisionManager(urlAccessDecisionManager);
                 return o;
             }
-        }).and().
-                formLogin().loginPage("/login_p").loginProcessingUrl("/login").
-                usernameParameter("username").passwordParameter("password").failureHandler(new AuthenticationFailureHandler() {
+        }).and().formLogin().loginPage("/login_p")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .loginProcessingUrl("/login")
+                .successHandler(new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+                httpServletResponse.setContentType("application/json;charset=utf-8");
+                RespBean respBean=RespBean.ok("login success");
+                PrintWriter out=httpServletResponse.getWriter();
+                out.write(new ObjectMapper().writeValueAsString(respBean));
+                out.flush();
+                out.close();
+            }
+        }).failureHandler(new AuthenticationFailureHandler() {
             @Override
             public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
                  httpServletResponse.setContentType("application/json;charset=utf-8");
@@ -127,21 +135,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 out.flush();
                 out.close();
             }
-        }).successHandler(new AuthenticationSuccessHandler() {
-            @Override
-            public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
-                httpServletResponse.setContentType("application/json;charset=utf-8");
-                RespBean respBean=RespBean.ok("login success");
-                PrintWriter out=httpServletResponse.getWriter();
-                out.write(new ObjectMapper().writeValueAsString(respBean));
-                out.flush();
-                out.close();
-            }
         }).permitAll()
         .and()
         .logout().permitAll()
         .and()
-        .csrf().disable()
-        .exceptionHandling().accessDeniedHandler(authenticationAccessDeniedHandler);
+        .csrf().disable();
+//        .exceptionHandling().accessDeniedHandler(authenticationAccessDeniedHandler);
     }
 }

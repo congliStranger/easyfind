@@ -53,6 +53,7 @@ public class CustomMetadataSource implements FilterInvocationSecurityMetadataSou
 
     @Override
     public boolean supports(Class<?> aClass) {
-       return FilterInvocation.class.isAssignableFrom(aClass);
+       return true;
+//        return FilterInvocation.class.isAssignableFrom(aClass);
     }
 }
